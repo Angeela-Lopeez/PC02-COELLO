@@ -2,29 +2,26 @@ package com.tecsup.pc02spring.controller;
 
 import com.tecsup.pc02spring.model.Medicamento;
 import com.tecsup.pc02spring.service.MedicamentoService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController
-@RequestMapping("/medicamento")
+@RequestMapping("/api/medicamentos")
 public class MedicamentoController {
 
-    private final MedicamentoService medicamentoService;
-
-    public MedicamentoController(MedicamentoService medicamentoService) {
-        this.medicamentoService = medicamentoService;
-    }
+    @Autowired
+    private MedicamentoService medicamentoService;
 
     @GetMapping
-    public List<Medicamento> getAll() {
-        return medicamentoService.getAll();
+    public List<Medicamento> listarTodos() {
+        return medicamentoService.listarTodos();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Medicamento> getById(@PathVariable Long id) {
-        Medicamento medicamento = medicamentoService.getById(id);
+    public ResponseEntity<Medicamento> obtenerPorId(@PathVariable Long id) {
+        Medicamento medicamento = medicamentoService.obtenerPorId(id);
         if (medicamento == null) {
             return ResponseEntity.notFound().build();
         }
@@ -32,36 +29,23 @@ public class MedicamentoController {
     }
 
     @PostMapping
-    public Medicamento create(@RequestBody Medicamento medicamento) {
-        return medicamentoService.save(medicamento);
+    public Medicamento crear(@RequestBody Medicamento medicamento) {
+        return medicamentoService.crear(medicamento);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Medicamento> update(@PathVariable Long id, @RequestBody Medicamento medicamento) {
-        Medicamento existing = medicamentoService.getById(id);
-        if (existing == null) {
+    public ResponseEntity<Medicamento> actualizar(@PathVariable Long id, @RequestBody Medicamento medicamento) {
+        medicamento.setCodMedicamento(id);
+        Medicamento actualizado = medicamentoService.actualizar(medicamento);
+        if (actualizado == null) {
             return ResponseEntity.notFound().build();
         }
-        existing.setDescripcionMed(medicamento.getDescripcionMed());
-        existing.setFechaFabricacion(medicamento.getFechaFabricacion());
-        existing.setFechaVencimiento(medicamento.getFechaVencimiento());
-        existing.setPresentacion(medicamento.getPresentacion());
-        existing.setStock(medicamento.getStock());
-        existing.setPrecioVentaUni(medicamento.getPrecioVentaUni());
-        existing.setPrecioVentaPres(medicamento.getPrecioVentaPres());
-        existing.setMarca(medicamento.getMarca());
-        existing.setCodEspec(medicamento.getCodEspec());
-        existing.setTipoMedic(medicamento.getTipoMedic());
-        return ResponseEntity.ok(medicamentoService.save(existing));
+        return ResponseEntity.ok(actualizado);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        Medicamento existing = medicamentoService.getById(id);
-        if (existing == null) {
-            return ResponseEntity.notFound().build();
-        }
-        medicamentoService.delete(id);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<?> eliminar(@PathVariable Long id) {
+        medicamentoService.eliminar(id);
+        return ResponseEntity.ok().build();
     }
 }

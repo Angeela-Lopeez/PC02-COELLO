@@ -2,29 +2,26 @@ package com.tecsup.pc02spring.controller;
 
 import com.tecsup.pc02spring.model.TipoMedic;
 import com.tecsup.pc02spring.service.TipoMedicService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController
-@RequestMapping("/tipomedic")
+@RequestMapping("/api/tipos-medic")
 public class TipoMedicController {
 
-    private final TipoMedicService tipoMedicService;
-
-    public TipoMedicController(TipoMedicService tipoMedicService) {
-        this.tipoMedicService = tipoMedicService;
-    }
+    @Autowired
+    private TipoMedicService tipoMedicService;
 
     @GetMapping
-    public List<TipoMedic> getAll() {
-        return tipoMedicService.getAll();
+    public List<TipoMedic> listarTodos() {
+        return tipoMedicService.listarTodos();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<TipoMedic> getById(@PathVariable Long id) {
-        TipoMedic tipoMedic = tipoMedicService.getById(id);
+    public ResponseEntity<TipoMedic> obtenerPorId(@PathVariable Long id) {
+        TipoMedic tipoMedic = tipoMedicService.obtenerPorId(id);
         if (tipoMedic == null) {
             return ResponseEntity.notFound().build();
         }
@@ -32,27 +29,23 @@ public class TipoMedicController {
     }
 
     @PostMapping
-    public TipoMedic create(@RequestBody TipoMedic tipoMedic) {
-        return tipoMedicService.save(tipoMedic);
+    public TipoMedic crear(@RequestBody TipoMedic tipoMedic) {
+        return tipoMedicService.crear(tipoMedic);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<TipoMedic> update(@PathVariable Long id, @RequestBody TipoMedic tipoMedic) {
-        TipoMedic existing = tipoMedicService.getById(id);
-        if (existing == null) {
+    public ResponseEntity<TipoMedic> actualizar(@PathVariable Long id, @RequestBody TipoMedic tipoMedic) {
+        tipoMedic.setCodTipoMed(id);
+        TipoMedic actualizado = tipoMedicService.actualizar(tipoMedic);
+        if (actualizado == null) {
             return ResponseEntity.notFound().build();
         }
-        existing.setDescripcion(tipoMedic.getDescripcion());
-        return ResponseEntity.ok(tipoMedicService.save(existing));
+        return ResponseEntity.ok(actualizado);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        TipoMedic existing = tipoMedicService.getById(id);
-        if (existing == null) {
-            return ResponseEntity.notFound().build();
-        }
-        tipoMedicService.delete(id);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<?> eliminar(@PathVariable Long id) {
+        tipoMedicService.eliminar(id);
+        return ResponseEntity.ok().build();
     }
 }

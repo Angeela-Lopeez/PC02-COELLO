@@ -4,9 +4,8 @@ import com.tecsup.pc02spring.dao.MedicamentoDAO;
 import com.tecsup.pc02spring.model.Medicamento;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Repository;
-
+import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Repository
@@ -14,33 +13,32 @@ import java.util.List;
 public class MedicamentoDAOImpl implements MedicamentoDAO {
 
     @PersistenceContext
-    private EntityManager em;
+    private EntityManager entityManager;
 
     @Override
-    public List<Medicamento> findAll() {
-        return em.createQuery("FROM Medicamento", Medicamento.class).getResultList();
+    public List<Medicamento> listarTodos() {
+        return entityManager.createQuery("FROM Medicamento", Medicamento.class).getResultList();
     }
 
     @Override
-    public Medicamento findById(Long id) {
-        return em.find(Medicamento.class, id);
+    public Medicamento obtenerPorId(Long id) {
+        return entityManager.find(Medicamento.class, id);
     }
 
     @Override
-    public Medicamento save(Medicamento medicamento) {
+    public void guardar(Medicamento medicamento) {
         if (medicamento.getCodMedicamento() == null) {
-            em.persist(medicamento);
-            return medicamento;
+            entityManager.persist(medicamento); // INSERT
         } else {
-            return em.merge(medicamento);
+            entityManager.merge(medicamento); // UPDATE
         }
     }
 
     @Override
-    public void delete(Long id) {
-        Medicamento medicamento = findById(id);
+    public void eliminar(Long id) {
+        Medicamento medicamento = entityManager.find(Medicamento.class, id);
         if (medicamento != null) {
-            em.remove(medicamento);
+            entityManager.remove(medicamento);
         }
     }
 }
